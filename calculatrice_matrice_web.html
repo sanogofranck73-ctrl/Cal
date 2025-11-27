@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculatrice Matrices – Déterminant & Valeurs Propres</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { text-align: center; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+    .grid { display: grid; gap: 10px; margin-top: 20px; }
+    input { width: 60px; padding: 5px; text-align: center; }
+    button { margin-top: 20px; padding: 10px 20px; cursor: pointer; }
+    pre { background: #eee; padding: 10px; border-radius: 5px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculatrice de Matrices</h1>
+
+    <label>Taille de la matrice :</label>
+    <select id="taille" onchange="genererGrille()">
+      <option value="2">2 × 2</option>
+      <option value="3">3 × 3</option>
+    </select>
+
+    <div id="grille"></div>
+
+    <button onclick="calculer()">Calculer</button>
+
+    <h3>Résultat :</h3>
+    <pre id="resultat"></pre>
+  </div>
+
+<script>
+function genererGrille() {
+  const taille = parseInt(document.getElementById("taille").value);
+  const grille = document.getElementById("grille");
+
+  grille.innerHTML = "";
+  grille.style.gridTemplateColumns = `repeat(${taille}, 1fr)`;
+  grille.className = "grid";
+
+  for (let i = 0; i < taille; i++) {
+    for (let j = 0; j < taille; j++) {
+      const inp = document.createElement("input");
+      inp.type = "number";
+      inp.id = `cell-${i}-${j}`;
+      grille.appendChild(inp);
+    }
+  }
+}
+
+genererGrille();
+
+function calculer() {
+  const taille = parseInt(document.getElementById("taille").value);
+  let M = [];
+
+  for (let i = 0; i < taille; i++) {
+    let row = [];
+    for (let j = 0; j < taille; j++) {
+      let val = parseFloat(document.getElementById(`cell-${i}-${j}`).value);
+      row.push(val);
+    }
+    M.push(row);
+  }
+
+  function determinant(matrix) {
+    if (matrix.length === 2) {
+      return matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0];
+    }
+    if (matrix.length === 3) {
+      return (
+        matrix[0][0]*(matrix[1][1]*matrix[2][2] - matrix[1][2]*matrix[2][1]) -
+        matrix[0][1]*(matrix[1][0]*matrix[2][2] - matrix[1][2]*matrix[2][0]) +
+        matrix[0][2]*(matrix[1][0]*matrix[2][1] - matrix[1][1]*matrix[2][0])
+      );
+    }
+  }
+
+  function valeursPropres2x2(m) {
+    const a=m[0][0], b=m[0][1], c=m[1][0], d=m[1][1];
+    const trace = a+d;
+    const det = a*d - b*c;
+    const discr = trace*trace - 4*det;
+    if (discr < 0) return "Complexes";
+    const l1 = (trace + Math.sqrt(discr))/2;
+    const l2 = (trace - Math.sqrt(discr))/2;
+    return [l1, l2];
+  }
+
+  let det = determinant(M);
+  let valeurs;
+
+  if (taille === 2) valeurs = valeursPropres2x2(M);
+  else valeurs = "(calcul avancé non inclus, mais possible à ajouter)";
+
+  document.getElementById("resultat").textContent = 
+    `Matrice :\n${JSON.stringify(M)}\n\n` +
+    `Déterminant : ${det}\n\n` +
+    `Valeurs propres : ${valeurs}`;
+}
+</script>
+</body>
+</html>
